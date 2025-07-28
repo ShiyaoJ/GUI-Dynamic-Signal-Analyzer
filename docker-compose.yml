@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    image: upasaka/backend:latest
+    container_name: springboot-app
+    ports:
+      - "8000:8000"
+    networks:
+      - appnet
+
+  frontend:
+    image: upasaka/frontend:latest
+    container_name: vue-frontend
+    ports:
+      - "80:80"
+    networks:
+      - appnet
+
+  tdengine:
+    image: tdengine/tdengine:latest
+    container_name: tdengine
+    ports:
+      - "6041:6041"
+      - "6030:6030"
+    networks:
+      - appnet
+
+  emqx:
+    image: emqx/emqx:4.4.19
+    container_name: emqx
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+    environment:
+      - EMQX_MQTT__MAX_PACKET_SIZE=2MB
+      - EMQX_LOADED_PLUGINS=emqx_recon,emqx_retainer,emqx_management,emqx_dashboard,emqx_web_hook
+    volumes:
+      - ./emqx_web_hook.conf:/opt/emqx/etc/plugins/emqx_web_hook.conf
+    networks:
+      - appnet
+
+networks:
+  appnet:
